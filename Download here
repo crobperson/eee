@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vigilant Invention Browser</title>
+    <style>
+        :root {
+            --bg: #09090b;
+            --surface: #121215;
+            --surface-hover: #1c1c21;
+            --border: #27272a;
+            --border-hover: #3f3f46;
+            --text-main: #f4f4f5;
+            --text-muted: #a1a1aa;
+            --text-subtle: #71717a;
+            --accent: #ffffff;
+            --accent-text: #000000;
+            --chip-bg: #18181b;
+            --chip-border: #27272a;
+            --shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5);
+            --radius-lg: 14px;
+            --radius-md: 10px;
+            --radius-sm: 6px;
+            --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background-color: var(--bg);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 60px 20px 80px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 680px;
+        }
+
+        /* Header section */
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            margin-bottom: 12px;
+            color: var(--text-main);
+        }
+
+        .subtitle {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            font-style: italic;
+            font-family: var(--font-mono);
+            background: var(--chip-bg);
+            display: inline-block;
+            padding: 6px 16px;
+            border-radius: 6px;
+            border: 1px solid var(--chip-border);
+        }
+
+        /* List and Cards */
+        .file-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .file-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            transition: transform 0.15s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: var(--shadow);
+        }
+
+        .file-card:hover {
+            border-color: var(--border-hover);
+            transform: translateY(-1px);
+        }
+
+        .file-info {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            min-width: 0;
+            flex: 1;
+        }
+
+        .file-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-md);
+            background: var(--chip-bg);
+            border: 1px solid var(--chip-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-main);
+            flex-shrink: 0;
+        }
+
+        .file-details {
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .file-name {
+            font-weight: 600;
+            font-size: 15px;
+            color: var(--text-main);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .file-meta {
+            font-size: 12px;
+            font-family: var(--font-mono);
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tag-html {
+            background: var(--chip-bg);
+            border: 1px solid var(--chip-border);
+            padding: 1px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .file-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 9px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.15s ease;
+            border: 1px solid transparent;
+            font-family: var(--font-sans);
+            white-space: nowrap;
+        }
+
+        .btn:active {
+            transform: scale(0.97);
+        }
+
+        .btn-primary {
+            background-color: var(--accent);
+            color: var(--accent-text);
+            border-color: var(--accent);
+        }
+
+        .btn-primary:hover {
+            opacity: 0.9;
+        }
+
+        .btn-secondary {
+            background-color: var(--chip-bg);
+            color: var(--text-main);
+            border-color: var(--chip-border);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--surface-hover);
+            border-color: var(--border-hover);
+        }
+
+        /* Loading Skeletons */
+        .skeleton-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .skeleton-pulse {
+            background: linear-gradient(90deg, var(--chip-bg) 25%, var(--border) 50%, var(--chip-bg) 75%);
+            background-size: 200% 100%;
+            animation: pulse 1.5s infinite;
+            border-radius: 4px;
+        }
+
+        @keyframes pulse {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .spinner {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* States */
+        .state-box {
+            text-align: center;
+            padding: 48px 24px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            margin-top: 20px;
+        }
+
+        .state-icon {
+            width: 48px;
+            height: 48px;
+            margin: 0 auto 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: var(--chip-bg);
+            border: 1px solid var(--chip-border);
+        }
+
+        .state-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .state-desc {
+            font-size: 13px;
+            color: var(--text-muted);
+            max-width: 400px;
+            margin: 0 auto 20px;
+            font-family: var(--font-mono);
+        }
+
+        @media (max-width: 540px) {
+            body {
+                padding: 30px 14px 40px;
+            }
+            .file-card {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 14px;
+            }
+            .file-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+            .file-actions .btn {
+                flex: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>Hi here's all my cool sites</h1>
+            <p class="subtitle">better to put all disk in one disk so less disk</p>
+        </header>
+
+        <!-- Skeleton Loading Container -->
+        <div id="skeleton-container" class="file-list">
+            <div class="skeleton-card">
+                <div style="display:flex; align-items:center; gap:14px; width:60%;">
+                    <div class="skeleton-pulse" style="width:40px; height:40px; border-radius:10px;"></div>
+                    <div style="display:flex; flex-direction:column; gap:8px; width:100%;">
+                        <div class="skeleton-pulse" style="width:70%; height:16px;"></div>
+                        <div class="skeleton-pulse" style="width:40%; height:12px;"></div>
+                    </div>
+                </div>
+                <div style="display:flex; gap:10px;">
+                    <div class="skeleton-pulse" style="width:85px; height:34px; border-radius:8px;"></div>
+                    <div class="skeleton-pulse" style="width:75px; height:34px; border-radius:8px;"></div>
+                </div>
+            </div>
+            <div class="skeleton-card">
+                <div style="display:flex; align-items:center; gap:14px; width:50%;">
+                    <div class="skeleton-pulse" style="width:40px; height:40px; border-radius:10px;"></div>
+                    <div style="display:flex; flex-direction:column; gap:8px; width:100%;">
+                        <div class="skeleton-pulse" style="width:80%; height:16px;"></div>
+                        <div class="skeleton-pulse" style="width:30%; height:12px;"></div>
+                    </div>
+                </div>
+                <div style="display:flex; gap:10px;">
+                    <div class="skeleton-pulse" style="width:85px; height:34px; border-radius:8px;"></div>
+                    <div class="skeleton-pulse" style="width:75px; height:34px; border-radius:8px;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Real Files Container -->
+        <div id="file-container" class="file-list" style="display: none;"></div>
+
+        <!-- Empty / Error Container -->
+        <div id="state-container" style="display: none;"></div>
+    </div>
+
+    <script>
+        const owner = 'crobperson';
+        const repo = 'vigilant-invention';
+        const apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents`;
+
+        // Format Byte Sizes
+        function formatBytes(bytes, decimals = 1) {
+            if (!bytes || bytes === 0) return '0 B';
+            const k = 1024;
+            const dm = decimals < 0 ? 0 : decimals;
+            const sizes = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+        }
+
+        // Fetch Repo Files
+        async function fetchRepoFiles() {
+            const skeletonEl = document.getElementById('skeleton-container');
+            const containerEl = document.getElementById('file-container');
+            const stateEl = document.getElementById('state-container');
+
+            skeletonEl.style.display = 'flex';
+            containerEl.style.display = 'none';
+            stateEl.style.display = 'none';
+
+            try {
+                const response = await fetch(apiUrl);
+                
+                if (!response.ok) {
+                    throw new Error(`GitHub API HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const files = await response.json();
+                
+                // Filter out non-files and files that don't end with .html
+                const htmlFiles = files.filter(file => file.type === 'file' && file.name.toLowerCase().endsWith('.html'));
+
+                skeletonEl.style.display = 'none';
+
+                if (htmlFiles.length === 0) {
+                    showState('No HTML Files Found', 'No .html files were discovered in the repository.');
+                    return;
+                }
+
+                renderFileList(htmlFiles);
+
+            } catch (error) {
+                console.error(error);
+                skeletonEl.style.display = 'none';
+                showState('Failed to Load Repository', error.message, true);
+            }
+        }
+
+        function renderFileList(filesToRender) {
+            const containerEl = document.getElementById('file-container');
+            const stateEl = document.getElementById('state-container');
+
+            containerEl.innerHTML = '';
+            stateEl.style.display = 'none';
+            containerEl.style.display = 'flex';
+
+            filesToRender.forEach(file => {
+                const card = document.createElement('div');
+                card.className = 'file-card';
+
+                const formattedSize = formatBytes(file.size);
+
+                card.innerHTML = `
+                    <div class="file-info">
+                        <div class="file-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                <polyline points="14 2 14 8 20 8"></polyline>
+                                <line x1="16" y1="13" x2="8" y2="13"></line>
+                                <line x1="16" y1="17" x2="8" y2="17"></line>
+                                <polyline points="10 9 9 9 8 9"></polyline>
+                            </svg>
+                        </div>
+                        <div class="file-details">
+                            <div class="file-name" title="${escapeHtml(file.name)}">${escapeHtml(file.name)}</div>
+                            <div class="file-meta">
+                                <span class="tag-html">HTML</span>
+                                <span>•</span>
+                                <span>${formattedSize}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="file-actions">
+                        <button class="btn btn-secondary btn-download" title="Download ${escapeHtml(file.name)}">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="7 10 12 15 17 10"></polyline>
+                                <line x1="12" y1="15" x2="12" y2="3"></line>
+                            </svg>
+                            <span>Download</span>
+                        </button>
+                        <button class="btn btn-primary btn-launch">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                            </svg>
+                            <span>Launch</span>
+                        </button>
+                    </div>
+                `;
+
+                // Add Event Listeners
+                const launchBtn = card.querySelector('.btn-launch');
+                launchBtn.onclick = () => loadHtmlPage(file.download_url, file.name);
+
+                const downloadBtn = card.querySelector('.btn-download');
+                downloadBtn.onclick = () => downloadFile(file.download_url, file.name, downloadBtn);
+
+                containerEl.appendChild(card);
+            });
+        }
+
+        // Helper to escape HTML
+        function escapeHtml(str) {
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
+
+        // Download File Handler
+        async function downloadFile(downloadUrl, fileName, btnElement) {
+            const originalHTML = btnElement.innerHTML;
+            try {
+                btnElement.disabled = true;
+                btnElement.style.opacity = '0.7';
+                btnElement.innerHTML = `
+                    <svg class="spinner" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 12a9 9 0 1 1-6.219-8.56"></path>
+                    </svg>
+                    <span>Downloading...</span>
+                `;
+
+                const response = await fetch(downloadUrl);
+                if (!response.ok) throw new Error(`HTTP error ${response.status}`);
+                
+                const blob = await response.blob();
+                const blobUrl = window.URL.createObjectURL(blob);
+                
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = blobUrl;
+                a.download = fileName;
+                document.body.appendChild(a);
+                a.click();
+                
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(blobUrl);
+
+                btnElement.innerHTML = `
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    <span>Done!</span>
+                `;
+
+                setTimeout(() => {
+                    btnElement.disabled = false;
+                    btnElement.style.opacity = '1';
+                    btnElement.innerHTML = originalHTML;
+                }, 2000);
+
+            } catch (err) {
+                console.error('Blob download failed, falling back to direct link:', err);
+                
+                const a = document.createElement('a');
+                a.href = downloadUrl;
+                a.download = fileName;
+                a.target = '_blank';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+
+                btnElement.disabled = false;
+                btnElement.style.opacity = '1';
+                btnElement.innerHTML = originalHTML;
+            }
+        }
+
+        // Load HTML Page Handler
+        async function loadHtmlPage(downloadUrl, fileName) {
+            try {
+                document.body.innerHTML = `
+                    <div style="min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #09090b; color: #ffffff; font-family: -apple-system, sans-serif;">
+                        <svg class="spinner" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-bottom: 16px;">
+                            <path d="M21 12a9 9 0 1 1-6.219-8.56"></path>
+                        </svg>
+                        <h2 style="font-weight: 500; font-size: 18px;">Loading ${escapeHtml(fileName)}...</h2>
+                    </div>
+                `;
+                
+                const response = await fetch(downloadUrl);
+                if (!response.ok) throw new Error('Failed to fetch HTML content.');
+                
+                let htmlContent = await response.text();
+
+                // Base URL
+                const baseHref = downloadUrl.substring(0, downloadUrl.lastIndexOf('/') + 1);
+                
+                // Inject floating return navigation bar with Circle Corner Minimization
+                const backBarHtml = `
+                    <!-- Full Expanded Navigation Bar (Top Center) -->
+                    <div id="vigilant-nav-full" style="position: fixed; top: 14px; left: 50%; transform: translateX(-50%); z-index: 2147483647; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #000000; color: #ffffff; border: 1px solid #333333; padding: 6px 16px; border-radius: 30px; display: flex; align-items: center; gap: 14px; font-size: 13px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); backdrop-filter: blur(10px);">
+                        <span style="font-weight: 600; font-family: ui-monospace, monospace;">${escapeHtml(fileName)}</span>
+                        <button onclick="window.location.reload()" style="background: #ffffff; color: #000000; border: none; padding: 5px 12px; border-radius: 16px; font-weight: 600; cursor: pointer; font-size: 12px;">← Back to Launcher</button>
+                        <button onclick="document.getElementById('vigilant-nav-full').style.display='none'; document.getElementById('vigilant-nav-circle').style.display='flex';" title="Minimize to Corner" style="background: transparent; color: #888888; border: none; cursor: pointer; font-size: 14px; padding: 0 4px; line-height: 1;">✕</button>
+                    </div>
+
+                    <!-- Minimized Floating Circle in Top-Right Corner -->
+                    <div id="vigilant-nav-circle" title="Expand Launcher Navigation" onclick="document.getElementById('vigilant-nav-circle').style.display='none'; document.getElementById('vigilant-nav-full').style.display='flex';" style="display: none; position: fixed; top: 16px; right: 16px; z-index: 2147483647; width: 44px; height: 44px; background: #000000; color: #ffffff; border: 1px solid #333333; border-radius: 50%; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 6px 20px rgba(0,0,0,0.6); backdrop-filter: blur(10px); transition: transform 0.2s, border-color 0.2s;" onmouseover="this.style.transform='scale(1.08)'; this.style.borderColor='#ffffff';" onmouseout="this.style.transform='scale(1)'; this.style.borderColor='#333333';">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="19" y1="12" x2="5" y2="12"></line>
+                            <polyline points="12 19 5 12 12 5"></polyline>
+                        </svg>
+                    </div>
+                `;
+
+                // Inject base tag and back bar
+                if (htmlContent.includes('<head>')) {
+                    htmlContent = htmlContent.replace('<head>', `<head><base href="${baseHref}">`);
+                } else if (htmlContent.includes('<HTML>')) {
+                    htmlContent = htmlContent.replace('<HTML>', `<HTML><head><base href="${baseHref}"></head>`);
+                } else {
+                    htmlContent = `<base href="${baseHref}">` + htmlContent;
+                }
+
+                if (htmlContent.includes('<body>')) {
+                    htmlContent = htmlContent.replace('<body>', `<body>${backBarHtml}`);
+                } else {
+                    htmlContent = backBarHtml + htmlContent;
+                }
+
+                // Completely overwrite current document with fetched HTML
+                document.open();
+                document.write(htmlContent);
+                document.close();
+
+            } catch (error) {
+                alert('Error loading page: ' + error.message);
+                location.reload();
+            }
+        }
+
+        // Show Error / Empty State
+        function showState(title, description, isError = false) {
+            const stateEl = document.getElementById('state-container');
+            stateEl.style.display = 'block';
+            stateEl.className = 'state-box';
+
+            stateEl.innerHTML = `
+                <div class="state-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        ${isError 
+                            ? '<circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line>' 
+                            : '<circle cx="12" cy="12" r="10"></circle><line x1="8" y1="12" x2="16" y2="12"></line>'}
+                    </svg>
+                </div>
+                <div class="state-title">${escapeHtml(title)}</div>
+                <div class="state-desc">${escapeHtml(description)}</div>
+                ${isError ? '<button class="btn btn-secondary" onclick="fetchRepoFiles()">Try Again</button>' : ''}
+            `;
+        }
+
+        // Initial Fetch
+        fetchRepoFiles();
+    </script>
+</body>
+</html>
