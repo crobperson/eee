@@ -40,13 +40,20 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 60px 20px 80px;
+            padding: 60px 20px 60px;
             -webkit-font-smoothing: antialiased;
         }
 
         .container {
             width: 100%;
             max-width: 680px;
+            display: flex;
+            flex-direction: column;
+            min-height: calc(100vh - 120px);
+        }
+
+        .main-content {
+            flex: 1;
         }
 
         /* Header section */
@@ -207,6 +214,28 @@
             border-color: var(--border-hover);
         }
 
+        /* Footer */
+        footer {
+            margin-top: 48px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border);
+            text-align: center;
+            font-size: 13px;
+            color: var(--text-subtle);
+            font-family: var(--font-mono);
+        }
+
+        footer a {
+            color: var(--text-muted);
+            text-decoration: underline;
+            text-underline-offset: 3px;
+            transition: color 0.2s ease;
+        }
+
+        footer a:hover {
+            color: var(--text-main);
+        }
+
         /* Loading Skeletons */
         .skeleton-card {
             background: var(--surface);
@@ -297,46 +326,52 @@
 <body>
 
     <div class="container">
-        <header>
-            <h1>Hi here's all my cool sites</h1>
-            <p class="subtitle">better to put all disk in one disk so less disk</p>
-        </header>
+        <div class="main-content">
+            <header>
+                <h1>Hi here's all my cool sites</h1>
+                <p class="subtitle">better to put all disk in one disk so less disk</p>
+            </header>
 
-        <!-- Skeleton Loading Container -->
-        <div id="skeleton-container" class="file-list">
-            <div class="skeleton-card">
-                <div style="display:flex; align-items:center; gap:14px; width:60%;">
-                    <div class="skeleton-pulse" style="width:40px; height:40px; border-radius:10px;"></div>
-                    <div style="display:flex; flex-direction:column; gap:8px; width:100%;">
-                        <div class="skeleton-pulse" style="width:70%; height:16px;"></div>
-                        <div class="skeleton-pulse" style="width:40%; height:12px;"></div>
+            <!-- Skeleton Loading Container -->
+            <div id="skeleton-container" class="file-list">
+                <div class="skeleton-card">
+                    <div style="display:flex; align-items:center; gap:14px; width:60%;">
+                        <div class="skeleton-pulse" style="width:40px; height:40px; border-radius:10px;"></div>
+                        <div style="display:flex; flex-direction:column; gap:8px; width:100%;">
+                            <div class="skeleton-pulse" style="width:70%; height:16px;"></div>
+                            <div class="skeleton-pulse" style="width:40%; height:12px;"></div>
+                        </div>
+                    </div>
+                    <div style="display:flex; gap:10px;">
+                        <div class="skeleton-pulse" style="width:85px; height:34px; border-radius:8px;"></div>
+                        <div class="skeleton-pulse" style="width:75px; height:34px; border-radius:8px;"></div>
                     </div>
                 </div>
-                <div style="display:flex; gap:10px;">
-                    <div class="skeleton-pulse" style="width:85px; height:34px; border-radius:8px;"></div>
-                    <div class="skeleton-pulse" style="width:75px; height:34px; border-radius:8px;"></div>
-                </div>
-            </div>
-            <div class="skeleton-card">
-                <div style="display:flex; align-items:center; gap:14px; width:50%;">
-                    <div class="skeleton-pulse" style="width:40px; height:40px; border-radius:10px;"></div>
-                    <div style="display:flex; flex-direction:column; gap:8px; width:100%;">
-                        <div class="skeleton-pulse" style="width:80%; height:16px;"></div>
-                        <div class="skeleton-pulse" style="width:30%; height:12px;"></div>
+                <div class="skeleton-card">
+                    <div style="display:flex; align-items:center; gap:14px; width:50%;">
+                        <div class="skeleton-pulse" style="width:40px; height:40px; border-radius:10px;"></div>
+                        <div style="display:flex; flex-direction:column; gap:8px; width:100%;">
+                            <div class="skeleton-pulse" style="width:80%; height:16px;"></div>
+                            <div class="skeleton-pulse" style="width:30%; height:12px;"></div>
+                        </div>
+                    </div>
+                    <div style="display:flex; gap:10px;">
+                        <div class="skeleton-pulse" style="width:85px; height:34px; border-radius:8px;"></div>
+                        <div class="skeleton-pulse" style="width:75px; height:34px; border-radius:8px;"></div>
                     </div>
                 </div>
-                <div style="display:flex; gap:10px;">
-                    <div class="skeleton-pulse" style="width:85px; height:34px; border-radius:8px;"></div>
-                    <div class="skeleton-pulse" style="width:75px; height:34px; border-radius:8px;"></div>
-                </div>
             </div>
+
+            <!-- Real Files Container -->
+            <div id="file-container" class="file-list" style="display: none;"></div>
+
+            <!-- Empty / Error Container -->
+            <div id="state-container" style="display: none;"></div>
         </div>
 
-        <!-- Real Files Container -->
-        <div id="file-container" class="file-list" style="display: none;"></div>
-
-        <!-- Empty / Error Container -->
-        <div id="state-container" style="display: none;"></div>
+        <footer>
+            Made by Clifton Roberson. Contact at <a href="mailto:clifton.roberson@utstudents.net">clifton.roberson@utstudents.net</a>
+        </footer>
     </div>
 
     <script>
@@ -373,8 +408,13 @@
 
                 const files = await response.json();
                 
-                // Filter out non-files and files that don't end with .html
-                const htmlFiles = files.filter(file => file.type === 'file' && file.name.toLowerCase().endsWith('.html'));
+                // Filter out non-files, non-html files, and Click_This_To_Get_The_Updated_Loader.html
+                const excludedFileName = 'click_this_to_get_the_updated_loader.html';
+                const htmlFiles = files.filter(file => 
+                    file.type === 'file' && 
+                    file.name.toLowerCase().endsWith('.html') &&
+                    file.name.toLowerCase() !== excludedFileName
+                );
 
                 skeletonEl.style.display = 'none';
 
